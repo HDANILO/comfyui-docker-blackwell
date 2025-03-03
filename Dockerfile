@@ -1,6 +1,6 @@
 
 # This image is based on the latest official PyTorch image, because it already contains CUDA, CuDNN, and PyTorch
-FROM pytorch/pytorch:2.5.1-cuda12.4-cudnn9-runtime
+FROM nvcr.io/nvidia/pytorch:25.02-py3
 
 # Installs Git, because ComfyUI and the ComfyUI Manager are installed by cloning their respective Git repositories
 RUN apt update --assume-yes && \
@@ -11,7 +11,7 @@ RUN apt update --assume-yes && \
 # Clones the ComfyUI repository and checks out the latest release
 RUN git clone https://github.com/comfyanonymous/ComfyUI.git /opt/comfyui && \
     cd /opt/comfyui && \
-    git checkout tags/v0.3.7
+    git checkout tags/v0.3.18
 
 # Clones the ComfyUI Manager repository and checks out the latest release; ComfyUI Manager is an extension for ComfyUI that enables users to install
 # custom nodes and download models directly from the ComfyUI interface; instead of installing it to "/opt/comfyui/custom_nodes/ComfyUI-Manager", which
@@ -21,12 +21,18 @@ RUN git clone https://github.com/comfyanonymous/ComfyUI.git /opt/comfyui && \
 # removed; this way, the custom nodes are installed on the host machine
 RUN git clone https://github.com/ltdrdata/ComfyUI-Manager.git /opt/comfyui-manager && \
     cd /opt/comfyui-manager && \
-    git checkout tags/2.55.5
+    git checkout tags/3.27.3
 
 # Installs the required Python packages for both ComfyUI and the ComfyUI Manager
 RUN pip install \
     --requirement /opt/comfyui/requirements.txt \
     --requirement /opt/comfyui-manager/requirements.txt
+
+# Blackwell torch torchvision torchaudio
+RUN pip install \
+    --pre torch torchvision torchaudio \
+    --index-url https://download.pytorch.org/whl/nightly/cu128 \
+    --ignore-installed
 
 # Sets the working directory to the ComfyUI directory
 WORKDIR /opt/comfyui
@@ -44,4 +50,4 @@ ENTRYPOINT ["/bin/bash", "/entrypoint.sh"]
 # On startup, ComfyUI is started at its default port; the IP address is changed from localhost to 0.0.0.0, because Docker is only forwarding traffic
 # to the IP address it assigns to the container, which is unknown at build time; listening to 0.0.0.0 means that ComfyUI listens to all incoming
 # traffic; the auto-launch feature is disabled, because we do not want (nor is it possible) to open a browser window in a Docker container
-CMD ["/opt/conda/bin/python", "main.py", "--listen", "0.0.0.0", "--port", "8188", "--disable-auto-launch"]
+CMD ["python", "main.py", "--listen", "0.0.0.0", "--port", "8188", "--disable-auto-launch"]

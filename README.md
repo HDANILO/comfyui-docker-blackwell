@@ -1,6 +1,6 @@
 # ComfyUI Docker
 
-This is a Docker image for [ComfyUI](https://www.comfy.org/), which makes it extremely easy to run ComfyUI on Linux and Windows WSL2. The image also includes the [ComfyUI Manager](https://github.com/ltdrdata/ComfyUI-Managergithub ) extension.
+This is a Docker image for [ComfyUI](https://www.comfy.org/), which makes it extremely easy to run ComfyUI on Linux and Windows WSL2. The image also includes the [ComfyUI Manager](https://github.com/ltdrdata/ComfyUI-Managergithub ) extension. This version is tailored for Blackwell GPU's as most of us are struggling to make comfyui run.
 
 ## Getting Started
 
@@ -8,9 +8,11 @@ To get started, you have to install [Docker](https://www.docker.com/). This can 
 
 To enable the usage of NVIDIA GPUs, the NVIDIA Container Toolkit must be installed. The installation process is detailed in the [official documentation](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html)
 
+You'll need to create an account on NVIDIA NGC, install [NGC-CLI](https://org.ngc.nvidia.com/setup/installers/cli), and follow instruction to [login docker into NGC](https://docs.nvidia.com/launchpad/ai/base-command-coe/latest/bc-coe-docker-basics-step-02.html)
+
 ## Installation
 
-The ComfyUI Docker image is available from the [GitHub Container Registry](https://ghcr.io). Installing ComfyUI is as simple as pulling the image and starting a container, which can be achieved using the following command:
+The ComfyUI Docker image is not available on the internet, therefore, you'll need to build it before you can run, see #Building
 
 ```shell
 docker run \
@@ -24,7 +26,7 @@ docker run \
     --publish 8188:8188 \
     --runtime nvidia \
     --gpus all \
-    ghcr.io/lecode-official/comfyui-docker:latest
+    comfyui-docker-blackwell:latest
 ```
 
 Please note, that the `<path/to/models/folder>` and `<path/to/custom/nodes/folder>` must be replaced with paths to directories on the host system where the models and custom nodes will be stored, e.g., `$HOME/.comfyui/models` and `$HOME/.comfyui/custom-nodes`, which can be created like so: `mkdir -p $HOME/.comfyui/{models,custom-nodes}`.
@@ -51,7 +53,7 @@ To update ComfyUI Docker to the latest version you have to first stop the runnin
 docker stop comfyui
 docker rm comfyui
 
-docker pull ghcr.io/lecode-official/comfyui-docker:latest
+docker build --tag comfyui-docker-blackwell:latest comfyui-docker-blackwell # Rebuild
 docker image prune # Optionally remove dangling images
 
 docker run \
@@ -65,7 +67,7 @@ docker run \
     --publish 8188:8188 \
     --runtime nvidia \
     --gpus all \
-    ghcr.io/lecode-official/comfyui-docker:latest
+    comfyui-docker-blackwell:latest
 ```
 
 ## Building
@@ -73,8 +75,8 @@ docker run \
 If you want to use the bleeding edge development version of the Docker image, you can also clone the repository and build the image yourself:
 
 ```shell
-git clone https://github.com/lecode-official/comfyui-docker.git
-docker build --tag lecode/comfyui-docker:latest comfyui-docker
+git clone https://github.com/HDANILO/comfyui-docker-blackwell.git
+docker build --tag comfyui-docker-blackwell:latest comfyui-docker-blackwell
 ```
 
 Now, a container can be started like so:
@@ -91,7 +93,7 @@ docker run \
     --publish 8188:8188 \
     --runtime nvidia \
     --gpus all \
-    lecode/comfyui-docker:latest
+    comfyui-docker-blackwell:latest
 ```
 
 ## License
